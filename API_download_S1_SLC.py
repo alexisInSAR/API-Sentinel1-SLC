@@ -40,9 +40,9 @@ class OptionParser (optparse.OptionParser):
 ###########################################################################
 ###########################################################################
 
-if len(sys.argv) != 23:
+if len(sys.argv) != 25:
     prog = os.path.basename(sys.argv[0])
-    print("example: python3 %s -u username -p password -s . -r . -b -10.78,51.27,-5.03,55.70 -i 2017-01-01T00:00:00 -j 2023-12-31T00:00 -o 1 -f a -m csv -w n" %
+    print("example: python3 %s -u username -p password -s . -r . -b -10.78,51.27,-5.03,55.70 -i 2017-01-01T00:00:00 -j 2023-12-31T00:00 -o 1 -f a -q IW -m csv -w n" %
           sys.argv[0])
     sys.exit(-1)
 else:
@@ -57,6 +57,7 @@ else:
     parser.add_option("-j", "--date_end", action="store", type="string", default='2024-01-01T00:00:00')
     parser.add_option("-o", "--orbit_relative", action="store", type="float", default='1')
     parser.add_option("-f", "--flight_direction", action="store", type="string", default='a')
+    parser.add_option("-q", "--q_acqui_mode", action="store", type="string", default='IW')
     parser.add_option("-m", "--mode", action="store", type="string", default='csv')
     parser.add_option("-w", "--write", action="store", type="string", default='n')
     (options, args) = parser.parse_args()
@@ -76,8 +77,27 @@ elif options.mode.upper() == 'CSV':
 else:
     print('Please, select a correct mode (csv or kml)...')
 
+# Correction of list according the beam mode
+os.rename("SLC_list.csv","SLC_list_orig.csv")
+h = 0 
+fout = open("SLC_list.csv",'w')
+with open("SLC_list_orig.csv") as fi:
+    for li in fi: 
+        if h > 0:
+            if options.q_acqui_mode.upper() == 'all':
+               fout.write(li)
+            elif options.q_acqui_mode.upper() in li:
+               fout.write(li)  
+        else:
+            fout.write(li)
+        h = h + 1
+fout.close()
+os.remove("SLC_list_orig.csv")
+
+# Download
 if options.mode.upper() == 'CSV' and options.write.upper() == 'Y':
     listSLC = pd.read_csv("SLC_list.csv")
+    print(listSLC)
     h = 0
     for slci in listSLC['Granule Name']:
         print('Checking if the SLC %s is stored or processed (.zip or .rslc from GAMMA)\n\t The url is %s' % (slci,listSLC['URL'][h]))
