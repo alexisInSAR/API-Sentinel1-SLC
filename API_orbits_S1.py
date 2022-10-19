@@ -60,6 +60,9 @@ else:
 # MAIN
 ###########################################################################
 
+if os.path.isfile('tmp_list_orbits_download.txt'):
+    os.remove('tmp_list_orbits_download.txt')
+
 # Check the precise files
 url_precise = "https://s1qc.asf.alaska.edu/aux_poeorb/"
 html = urllib.request.urlopen(url_precise)
@@ -139,10 +142,15 @@ for i in range(len(dateSLC)):
     if check_precise:
         for ni in name_orbit_precise: 
             if not os.path.isfile(options.output+'/'+ni): 
-                cmd = "wget --user %s --password %s -P %s %s" % (options.user,options.password,options.output,url_precise+ni)
-                os.system(cmd)
+                with open('tmp_list_orbits_download.txt','a') as fi:
+                    fi.write('%s\n' %(url_precise+ni))
     if check_restitued:
         for ni in name_orbit_restitued: 
             if not os.path.isfile(options.output+'/'+ni): 
-                cmd = "wget --user %s --password %s -P %s %s" % (options.user,options.password,options.output,url_restitued+ni)
-                os.system(cmd)
+                with open('tmp_list_orbits_download.txt','a') as fi:
+                    fi.write('%s\n' %(url_restitued+ni))
+                
+if os.path.isfile('tmp_list_orbits_download.txt'):
+    cmd = "wget --user %s --password %s -P %s -i %s" % (options.user,options.password,options.output,'tmp_list_orbits_download.txt')
+    os.system(cmd)
+    os.remove('tmp_list_orbits_download.txt')
