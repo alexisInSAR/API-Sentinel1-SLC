@@ -73,17 +73,19 @@ orbits_precise = []
 for li in links:
     if ".EOF" in li:
         orbits_precise.append(li)
-
 # Check the restitued files
-url_restitued = "https://s1qc.asf.alaska.edu/aux_resorb/"
-html = urllib.request.urlopen(url_restitued)
-text = html.read()
-plaintext = text.decode('utf8')
-links = re.findall("href=[\"\'](.*?)[\"\']", plaintext)
-orbits_restitued = []
-for li in links:
-    if ".EOF" in li:
-        orbits_restitued.append(li)
+try: 
+    url_restitued = "https://s1qc.asf.alaska.edu/aux_resorb/"
+    html = urllib.request.urlopen(url_restitued)
+    text = html.read()
+    plaintext = text.decode('utf8')
+    links = re.findall("href=[\"\'](.*?)[\"\']", plaintext)
+    orbits_restitued = []
+    for li in links:
+        if ".EOF" in li:
+            orbits_restitued.append(li)
+except: 
+    orbits_restitued = []
 
 # Open the list of SLCs
 dateSLC = []
